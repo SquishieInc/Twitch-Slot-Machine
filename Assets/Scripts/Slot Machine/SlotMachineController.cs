@@ -1,62 +1,102 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine.UI;
 
 public class SlotMachineController : MonoBehaviour
 {
-    public Image[] reels;  // Reels to spin
-    public Sprite[] reelIcons;  // Available icons for reels
-    public float spinDuration = 2f;  // Duration of the spin
-    public TMP_Text resultText;  // Text to show results
-    public Button spinButton;  // Button to start spin
+    public ReelSpin[] reelScripts;  // Reference to each ReelSpin script for the three reels
+    public TMP_Text resultText;     // Display result (win/lose)
+    public TMP_Text payoutText;     // Display payout amount
+
+    // Dictionary to store payout values for each symbol
+    public Dictionary<Sprite, int> symbolPayouts = new Dictionary<Sprite, int>();
+
+    public Sprite cherrySprite;  // Example of symbols (set these in the Inspector)
+    public Sprite bellSprite;
+    public Sprite sevenSprite;
 
     private bool isSpinning = false;
 
-    private void Start()
+    void Start()
     {
-        spinButton.onClick.AddListener(StartSpin);
+        // Set up payout values for each symbol
+        // Example symbols: You can add more symbols and customize payouts here
+        symbolPayouts.Add(cherrySprite, 100);  // Payout for Cherry symbol
+        symbolPayouts.Add(bellSprite, 200);    // Payout for Bell symbol
+        symbolPayouts.Add(sevenSprite, 500);   // Payout for Seven symbol
     }
 
-    void StartSpin()
+    public void StartSpin()
     {
         if (!isSpinning)
         {
-            isSpinning = true;
             StartCoroutine(SpinReels());
         }
     }
 
     IEnumerator SpinReels()
     {
-        float elapsedTime = 0;
-        float interval = 0.1f;  // Interval between each icon change
+        isSpinning = true;
 
-        while (elapsedTime < spinDuration)
+        // Start all reels spinning
+        foreach (ReelSpin reel in reelScripts)
         {
-            elapsedTime += interval;
-            for (int i = 0; i < reels.Length; i++)
-            {
-                reels[i].sprite = reelIcons[Random.Range(0, reelIcons.Length)];
-            }
-            yield return new WaitForSeconds(interval);
+            reel.StartSpin();
         }
 
-        // Spin finished, check results
+        // Wait for the specified spin duration
+        yield return new WaitForSeconds(reelScripts[0].spinDuration);
+
+        // Stop all reels
+        foreach (ReelSpin reel in reelScripts)
+        {
+            reel.StopSpin();
+        }
+
+        // Check the results after stopping
         CheckResults();
         isSpinning = false;
     }
 
     void CheckResults()
     {
-        // Example logic: if all reels show the same icon, player wins
-        if (reels[0].sprite == reels[1].sprite && reels[1].sprite == reels[2].sprite)
+        // For simplicity, let's assume we are checking the first visible child icon of each reel
+        Sprite reel1Icon = reelScripts[0].reelContainer.GetChild(0).GetComponent<Image>().sprite;
+        Sprite reel2Icon = reelScripts[1].reelContainer.GetChild(0).GetComponent<Image>().sprite;
+        Sprite reel3Icon = reelScripts[2].reelContainer.GetChild(0).GetComponent<Image>().sprite;
+
+        // Check for "three of a kind" winning condition
+        if (reel1Icon == reel2Icon && reel2Icon == reel3Icon)
         {
-            resultText.text = "You Win!";
+            // Three of a kind: Check the symbol's specific payout
+            if (symbolPayouts.ContainsKey(reel1Icon))
+            {
+                int payout = symbolPayouts[reel1Icon];
+                resultText.text = "Jackpot! Three of a kind!";
+                Payout(payout);
+            }
         }
         else
         {
-            resultText.text = "Try Again!";
+            // No match or two of a kind
+            resultText.text = "No win, try again!";
+            Payout(0);  // No payout for no match
         }
+    }
+
+    void Payout(int amount)
+    {
+        // Display the payout amount if any
+        if (amount > 0)
+        {
+            payoutText.text = "Payout: $" + amount.ToString();
+        }
+        else
+        {
+            payoutText.text = "Payout: $0";
+        }
+        // Optionally, handle player's balance here (e.g., playerBalance += amount)
     }
 }
