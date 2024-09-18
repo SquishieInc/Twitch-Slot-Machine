@@ -23,6 +23,9 @@ public class SlotMachineController : MonoBehaviour
 
     private bool isSpinning = false;
 
+    public float minStopDelay = 0.5f;  // Minimum delay before stopping the next reel
+    public float maxStopDelay = 1.5f;  // Maximum delay before stopping the next reel
+
     void Start()
     {
         // Set up payout values for each symbol
@@ -54,16 +57,18 @@ public class SlotMachineController : MonoBehaviour
             reel.StartSpin();
         }
 
-        // Wait for the specified spin duration
-        yield return new WaitForSeconds(reelScripts[0].spinDuration);
-
-        // Stop all reels
-        foreach (ReelSpin reel in reelScripts)
+        // Stop reels one by one with a random delay
+        for (int i = 0; i < reelScripts.Length; i++)
         {
-            reel.StopSpin();
+            // Wait for a random delay between minStopDelay and maxStopDelay before stopping the reel
+            float stopDelay = Random.Range(minStopDelay, maxStopDelay);
+            yield return new WaitForSeconds(stopDelay);
+
+            // Stop the current reel
+            reelScripts[i].StopSpin();
         }
 
-        // Check the results after stopping
+        // Once all reels have stopped, check the results
         CheckResults();
         isSpinning = false;
     }
