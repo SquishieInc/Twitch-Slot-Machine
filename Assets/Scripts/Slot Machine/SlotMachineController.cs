@@ -13,9 +13,13 @@ public class SlotMachineController : MonoBehaviour
     // Dictionary to store payout values for each symbol
     public Dictionary<Sprite, int> symbolPayouts = new Dictionary<Sprite, int>();
 
-    public Sprite cherrySprite;  // Example of symbols (set these in the Inspector)
-    public Sprite bellSprite;
-    public Sprite sevenSprite;
+    public Sprite redBar;  // Example of symbols (set these in the Inspector)
+    public Sprite blueBar;
+    public Sprite greenBar;
+    public Sprite yellowStar;
+    public Sprite copperCoin;
+    public Sprite silverCoin;
+    public Sprite goldCoin;
 
     private bool isSpinning = false;
 
@@ -23,9 +27,13 @@ public class SlotMachineController : MonoBehaviour
     {
         // Set up payout values for each symbol
         // Example symbols: You can add more symbols and customize payouts here
-        symbolPayouts.Add(cherrySprite, 100);  // Payout for Cherry symbol
-        symbolPayouts.Add(bellSprite, 200);    // Payout for Bell symbol
-        symbolPayouts.Add(sevenSprite, 500);   // Payout for Seven symbol
+        symbolPayouts.Add(redBar, 100);  // Payout for Cherry symbol
+        symbolPayouts.Add(blueBar, 200);    // Payout for Bell symbol
+        symbolPayouts.Add(greenBar, 500);   // Payout for Seven symbol
+        symbolPayouts.Add(yellowStar, 100);  // Payout for Cherry symbol
+        symbolPayouts.Add(copperCoin, 200);    // Payout for Bell symbol
+        symbolPayouts.Add(silverCoin, 500);   // Payout for Seven symbol
+        symbolPayouts.Add(goldCoin, 500);   // Payout for Seven symbol
     }
 
     public void StartSpin()
